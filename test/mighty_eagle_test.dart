@@ -17,5 +17,19 @@ void main() {
       final output = await parser.parse();
       expect(output, equals('Hello, Ronald!'));
     });
+
+    test('should substitute context variable', () async {
+      const template = 'English: {@greeting Hello, {=name:}:}!';
+      final context = {'name': 'Ronald'};
+
+      final parser = MightyEagleParser(
+        template: template,
+        context: context,
+        dispatcher: EchoDispatcher(),
+      );
+
+      final output = await parser.parse();
+      expect(output, equals('English: Hello, Ronald!'));
+    });
   });
 }

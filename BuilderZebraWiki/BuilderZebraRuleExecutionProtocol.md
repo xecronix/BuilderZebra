@@ -43,15 +43,15 @@ rules/ruleName.dart input.json output.txt
   "context": {
     "years": "7"
   },
-  "args": ["7"]
+  "args": "7"
 }
 ```
 
-| Key        | Description                                      |
-|------------|--------------------------------------------------|
-| `template` | The subtemplate string between the action tag    |
-| `context`  | Key-value map from BuilderZebra’s context engine |
-| `args`     | Positional args extracted from the tag itself    |
+| Key        | Description                                                                      |
+|------------|----------------------------------------------------------------------------------|
+| `template` | The subtemplate string between the action tag                                    |
+| `context`  | Key-value map from BuilderZebra’s context engine                                 |
+| `args`     | Optional String. Can be delimited if you need, or a message, or anything else.   |
 
 ---
 

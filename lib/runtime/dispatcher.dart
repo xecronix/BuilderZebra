@@ -1,8 +1,8 @@
 abstract class Dispatcher {
-  Future<String> call(
-    String rule,
-    String subtemplate,
-    List<String> args,
-    Map<String, dynamic> context,
-  );
+  Future<String> call({
+    required String rule,
+    required String template,
+    String? args,
+    required Map<String, String> context,
+});
 }

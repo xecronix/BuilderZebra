@@ -45,13 +45,22 @@ Hello Ronald!
 
 ### Format Variants:
 ```text
-{@rule:subtemplate:}              # no arguments
-{@rule:arg1:arg2:subtemplate:}    # positional arguments before subtemplate
+{@rule:subtemplate:}        # no arguments
+{@rule|arg|subtemplate:}    # arg is a single string. Escape `|` with `\|`
+
+
+Multiple | can be escaped individually. For example:
+{@repeat|2025\|true| Subtemplate:}
+→ args = "2025|true"
+
+But a cleaner solution might be: (up to you)
+{@repeat|2025:true| Subtemplate:}
+→ args = "2025:true"
 ```
 
 ### Components:
 - **rule**: The name of the rule script (e.g., `rules/rule.dart`)
-- **args**: Optional positional arguments (space-free, colon-separated)
+- **args**: Optional String. Can be delimited if you need, or a message, or anything else.
 - **subtemplate**: The body passed to the rule, raw
 
 ### Behavior:
@@ -60,8 +69,9 @@ Hello Ronald!
 3. Passes both to `rules/rule.dart` or equivalent script
 4. Shells out using:
    ```bash
-   rules/rule.dart arg1 arg2
+   rules/rule.dart "arg"
    ```
+5. Zebra passes the raw `args` string to the rule. Zebra does not attempt to parse or interpret the arguments.   
 5. Sends subtemplate (and context map) via stdin or environment
 6. Replaces the entire tag block with the result from the rule
 
@@ -74,20 +84,20 @@ Resolves inner substitution, then passes:
 {
   "template": "Hello Ronald",
   "context": { "name": "Ronald" },
-  "args": []
+  "args": ""
 }
 ```
 
 ### Example 2: With args
 ```text
-{@repeat:7:Four score and {=years:} ago:}
+{@repeat|7|Four score and {=years:} ago:}
 ```
 Resolves context, then sends to `repeat.dart`:
 ```json
 {
   "template": "Four score and {=years:} ago",
   "context": { "years": "1" },
-  "args": ["7"]
+  "args": "7"
 }
 ```
 Output:
