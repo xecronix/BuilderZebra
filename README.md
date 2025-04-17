@@ -31,6 +31,9 @@ It scaffolds **just enough** to get your work moving—and then gets the hell ou
 - Tools must respect **context**, **intent**, and **judgment**.
 - Assumptions must be replaceable with **rules**.
 - Builders should never repeat themselves twice. If they do, it’s time to write a rule.
+- **If you modify a generated file by hand, it's a signal.**  
+  **A signal that a rule is missing, broken, or unclear.**  
+  **Every manual touch is a clue on how to teach the tool to be smarter next time.**
 
 ---
 
@@ -74,13 +77,13 @@ working_directory/
 
 ## 🤜 Core Concepts
 
-| Concept           | Description |
-|----------------- -|-------------|
-| `datatruth.json`  | Builder-defined schema and structure for all output |
-| `decisions.json ` | Zebra's memory of your preferences and overrides |
-| Templates         | The raw text-based blueprint used to generate files |
+| Concept           | Description                                                     |
+|-------------------|-----------------------------------------------------------------|
+| `datatruth.json`  | Builder-defined schema and structure for all output             |
+| `decisions.json`  | Zebra's memory of your preferences and overrides                |
+| Templates         | The raw text-based blueprint used to generate files             |
 | Rules             | Executable scripts that handle the decision logic for each type |
-| Feedback Loop     | If you change something manually, Zebra can ask to remember it |
+| Feedback Loop     | If you change something manually, Zebra can ask to remember it  |
 
 ---
 
@@ -170,44 +173,4 @@ It’s a **scaffold engine with memory**, designed for builders who see the worl
 > “Does the product reflect what I meant?”
 
 This project doesn’t aim to be universal.  
-It aims to be **right**—for **you**, in **this moment**, with **these constraints**.
-
----
-
-## ⚠️ Status
-
-BuilderZebra is under construction.  
-Early tests, prototypes, and rule engines are being assembled.
-
-You're welcome to help forge it into something timeless.
-
----
-
-## 📅 Use Case Examples
-
-### 1. Scaffold a Model
-```sh
-zebra scaffold create model data/datatruth.json journal
-```
-Generates:
-- `lib/core/models/journal.dart` using `templates/model.tpl`
-- Decision on output path stored in `decisions.json`
-
-### 2. Reuse Rules
-Update the rule file `rules/dto.dart` to strip out audit fields.
-```dart
-if (field == "createdAt" || field == "updatedAt") continue;
-```
-Rerun:
-```sh
-zebra scaffold create dto data/datatruth.json journal
-```
-
-### 3. Add Rule to Decision Memory
-Zebra notices repeated moves of output files and prompts:
-> "You moved journal_model.dart to /lib/shared/models. Save that as a rule?"
-
-Answer: `yes` → saved to `decisions.json`
-
-Next time, Zebra scaffolds into the preferred location automatically.
-
+It aims to be **right**—for **you**, in **this moment**, with **these constraint

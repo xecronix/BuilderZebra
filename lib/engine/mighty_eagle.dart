@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:builderzebra/runtime/dispatcher.dart';
+import 'package:builderzebra/engine/char_stream.dart';
 
 // Parser core inspired by MightyEagle
 class MightyEagleParser {
@@ -12,179 +14,199 @@ class MightyEagleParser {
   final String template;
   final Map<String, String> context;
   final Dispatcher dispatcher;
+  final escChar = '\\';
 
   Future<String> parse() async {
     final output = StringBuffer();
-    final stream = _CharStream(template);
-    final escapeChar = '\\';
-    var state = ParseState.echo;
-    var buffer = StringBuffer();
-    var tag = StringBuffer();
-    var subTemplate = StringBuffer();
-    var dispatcherArg = StringBuffer();
-    var nestLevel = 0;
+    final stream = CharStream(template);
+    output.write(await beginParse(stream: stream));
+    return output.toString();
+  }
+
+  Future<String> openSubstitutionRule({required CharStream stream}) async {
+    final output = StringBuffer();
+    final rule = StringBuffer();
+    while (stream.hasMore) {
+      final char = stream.current;
+      final peek = stream.next;
+      if (char == ' ') {
+        // Do nothing.  We ignore spaces in substituion tags.
+      } else if (char == ':') {
+        // the next char should be the closing brace.  If it's not
+        // that's a bad template. Also, we should have some rule
+        // defined by now.
+        if (rule.length == 0) {
+          // Is the rule defined?
+          throw const FormatException('The : is not a valid rule character.');
+        }
+        if (peek != '}') {
+          // Is the template valid?
+          throw FormatException('Expected } but found $peek.');
+        }
+        // we made it past the exceptions.  Let's write some data.
+        final ruleData = context[rule.toString()];
+        output.write( ruleData ?? '');
+        stream.advance(); // move to the closing } brace
+        break; // Time to leave the while loop.  We're done in here.
+      } else {
+        rule.write(char);
+      }
+      stream.advance();
+    }
+    return output.toString();
+  }
+
+  Future<String> openActionRule({required CharStream stream}) async {
+    final output = StringBuffer();
+    final rule = StringBuffer();
+    final dispatcherArgs = StringBuffer();
+    final subTemplate = StringBuffer();
 
     while (stream.hasMore) {
       final char = stream.current;
       final peek = stream.next;
-
-      switch (state) {
-        case ParseState.echo:
-          if (char == escapeChar) {
-            if (peek == '{') {
-              state = ParseState.maybeEscapeOpeningTag;
-            }
-          } else if (char == '{') {
-            if (peek == '=' || peek == '@') {
-              state = ParseState.tagOpening;
-            } else {
-              output.write(char);
-            }
+      if (rule.isNotEmpty) {
+        if (char == ' ') {
+          // we didn't have any optional args
+          // time to get the subtemplate.
+          stream.advance();
+          subTemplate.write(await openSubtemplate(stream: stream));
+          // break from the while loop
+          break;
+        } else if (char == '|') {
+          // time to get the dispatcherArg data
+          stream.advance();
+          dispatcherArgs.write(await openDispatchArgs(stream: stream));
+          // time to get the subtemplate.
+          stream.advance();
+          subTemplate.write(await openSubtemplate(stream: stream));
+          // break from the while loop
+          break;
+        } else if (char == ':') {
+          // this is the case where we have an action rule without a subtemplate
+          // the next char should be the closing } brace
+          if (peek != '}'){
+            throw FormatException('Expected } but found $peek');
           } else {
-            output.write(char);
+            stream.advance(); // move to the }
+            break;
           }
-          break;
-        case ParseState.maybeEscapeOpeningTag:
-          output.write('$escapeChar$char');
-          state = ParseState.echo;
-          break;
-        case ParseState.tagOpening:
-          if (char == '=') {
-            state = ParseState.substitutionTagOpen;
-          } else if (char == '@') {
-            state = ParseState.actionTagOpen;
-          } else {
-            throw const FormatException(
-              'ParseState.tagOpening Might Eagle ended up in code thought to be unreachable.',
-            );
-          }
-          break;
-        case ParseState.substitutionTagOpen:
-          if (char == ' ') {
-            // Do nothing. Spaces have no meaning in a substitution tag
-            // We could end up with weird tags though if someone did this:
-            // {= Something With Spaces :}  == SomethingWithSpaces
-          } else if (char == ':') {
-            if (peek == '}') {
-              state = ParseState.substitutionTagClosing;
-            } else {
-              throw FormatException(
-                'ParseState.substitutionTagOpen Expected "}" but got $peek',
-              );
-            }
-          } else {
-            tag.write(char);
-          }
-          break;
-
-        case ParseState.actionTagOpen:
-          if (char == ' ' && tag.length == 0) {
-            // Do nothing.  We're ignoring leading whitespace
-          } else if (tag.length > 0) {
-            if (char == ' ') {
-              state = ParseState.subTemplate;
-              nestLevel = 1;
-            } else if (char == '|') {
-              state = ParseState.dispatcherArgs;
-            } else if (char == ':') {
-              if (peek == '}') {
-                state = ParseState.actionTagClosing;
-              } else {
-                throw FormatException(
-                  'ParseState.actionTagOpen: Expected } but found $peek',
-                );
-              }
-            } else {
-              tag.write(char);
-            }
-          } else {
-            tag.write(char);
-          }
-          break;
-        case ParseState.dispatcherArgs:
-          if (char == escapeChar) {
-            if (peek == '|') {
-              dispatcherArg.write(peek);
-              stream.advance();
-            } else {
-              dispatcherArg.write(char);
-            }
-          } else if (char == '|') {
-            state = ParseState.subTemplate;
-            nestLevel = 1;
-          } else {
-            dispatcherArg.write(char);
-          }
-          break;
-
-        case ParseState.subTemplate:
-          if (char == '{' && (peek == '=' || peek == '@')) {
-            nestLevel++;
-          } else if (char == ':' && peek == '}') { 
-            // Detect closing delimiter for both substitution and action tags
-            nestLevel--;
-          }
-          if (nestLevel == 0) {
-            state = ParseState.actionTagClosing;
-          } else {
-            subTemplate.write(char);
-          }
-          break;
-
-        case ParseState.substitutionTagClosing:
-          output.write(context[tag.toString()] ?? '');
-          tag.clear();
-          state = ParseState.echo;
-          break;
-        case ParseState.actionTagClosing:
-          output.write(
-            await dispatcher.call(
-              context: context,
-              rule: tag.toString(),
-              template: subTemplate.toString(),
-              args: dispatcherArg.toString(),
-            ),
-          );
-          subTemplate.clear();
-          tag.clear();
-          dispatcherArg.clear();
-          state = ParseState.echo;
-          break;
+        }
+      } else {
+        // we're not looking for args or a subtemplate
+        // so this charater must be a rule
+        if (char != ' '){ // this deals with leading spaces like {@ key:}
+          rule.write(char);
+        }
       }
+      stream.advance();
+    }
 
+    if (rule.isNotEmpty) {
+      output.write(await dispatcher.call(rule: rule.toString(),
+        args: dispatcherArgs.toString(),
+        template: subTemplate.toString(), 
+        context: context));
+    }
+
+    return output.toString();
+  }
+
+  Future<String> openSubtemplate({
+    required CharStream stream,
+  }) async {
+    final output = StringBuffer();
+    var nestLevel = 1;
+    while(stream.hasMore){
+      final char = stream.current;
+      final peek = stream.next;
+      // lets see if this is an open tag.
+      if (char == '{' && (peek == '=' || peek == '@')){
+        // it is an open tag so nestLevel goes up
+        nestLevel++;
+        output.write('$char$peek');
+        // advance the stream since we just dealt with the next char (aka peek)
+        stream.advance();
+      } else if (char == ':' && peek == '}'){
+        // this is a closing tag.  So there is extra consideration here.
+        nestLevel--;
+        if (nestLevel == 0){
+          // We found the closing tag that caused us to be in 
+          // this method in the first place.  We don't really 
+          // want to write it to the sub template.  so, we'll
+          // advace the stream and get out of the while loop.
+          stream.advance(); // move to the }
+          break;
+        } else {
+          // This is a closing tag, but not the one we're looking
+          // for.  It's part of the subtemplate. Write it to 
+          // and advance the stream since we're dealing with the 
+          // peek character now.
+          output.write('$char$peek');
+          stream.advance();
+        }
+      } else {
+        // Just regular old template data
+        output.write(char);
+      }
+      // if we had found the closing tag we would have bailed on this
+      // loop.  Since we're here, we must not have found it yet. Advance
+      // the stream and keep looking.
       stream.advance();
     }
 
     return output.toString();
   }
+
+  Future<String> openDispatchArgs({
+    required CharStream stream,
+  }) async {
+    final output = StringBuffer();
+
+    while(stream.hasMore){
+      final char = stream.current;
+      final peek = stream.next;
+      if (char == escChar && peek == '|'){
+        output.write('$char$peek');
+        stream.advance(); // advance to the | since we've dealt with it.
+      } else if (char == '|'){
+        break;
+      } else {
+        output.write(char);
+      }
+      stream.advance();
+    }
+    return output.toString();
+  }
+
+  Future<String> beginParse({required CharStream stream}) async {
+    final output = StringBuffer();
+    while (stream.hasMore) {
+      final char = stream.current;
+      final peek = stream.next;
+      if (char == escChar && peek == '{') {
+        // looks like we're trying to escape an opening tag.
+        output.write('$escChar$peek');
+        stream.advance();
+      } else if (char == '{' && (peek == '=' || peek == '@')) {
+        // a rule is opening. Let's figure out which type
+        // and send it to the method to handle it.
+        stream.advance(); // move the stream to the type identifier.
+        if (stream.current == '=') {
+          stream.advance(); // move the stream past the type identifier.
+          output.write(await openSubstitutionRule(stream: stream));
+        } else {
+          stream.advance(); // move the stream past the type identifier.
+          output.write(await openActionRule(stream: stream));
+        }
+      } else {
+        output.write(char);
+      }
+      stream.advance();
+    }
+    return output.toString();
+  }
 }
 
-class _CharStream {
-  _CharStream(this._input);
 
-  final String _input;
-  int _index = 0;
-
-  String? get current => _index < _input.length ? _input[_index] : null;
-
-  String? get next => _index + 1 < _input.length ? _input[_index + 1] : null;
-
-  bool get hasMore => _index < _input.length;
-
-  void advance() => _index++;
-}
-
-enum ParseState {
-  echo,
-  maybeEscapeOpeningTag,
-  tagOpening,
-  substitutionTagOpen,
-  actionTagOpen,
-  substitutionTagClosing,
-  actionTagClosing,
-  dispatcherArgs,
-  subTemplate,
-  //maybeEscapeClosingTag,
-  //error,
-}
 

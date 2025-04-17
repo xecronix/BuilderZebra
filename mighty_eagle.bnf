@@ -1,0 +1,35 @@
+<template>           ::= <text>* 
+
+<text>               ::= <escaped_tag>
+                      | <substitution_tag>
+                      | <action_tag>
+                      | <literal_char>
+
+<escaped_tag>        ::= '\' '{'
+
+<substitution_tag>   ::= '{=' <key> ':' '}'
+
+<action_tag>         ::= '{@' <optional_space> <rule> <action_args>? <subtemplate>? ':' '}'
+
+<action_args>        ::= '|' <arg_content> '|'
+
+<subtemplate>        ::= <nested_content>
+
+<nested_content>     ::= <text>* <subtemplate_end>
+
+<subtemplate_end>    ::= ':' '}'
+
+<key>                ::= <identifier>
+<rule>               ::= <identifier>
+<arg_content>        ::= <any_char_except_pipe_or_colon_brace>*
+
+<literal_char>       ::= any character except `{`, `\` unless escaped
+
+<optional_space>     ::= ' '*
+
+<identifier>         ::= <alpha> (<alpha> | <digit> | '_')*
+
+<alpha>              ::= 'a'..'z' | 'A'..'Z'
+<digit>              ::= '0'..'9'
+
+<any_char_except_pipe_or_colon_brace> ::= any character except `|`, `:`, `}`
