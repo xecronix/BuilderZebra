@@ -11,7 +11,7 @@ It enables BuilderZebra to run **with graceful error tolerance**, while still su
 - ⚠️ Warnings or friction indicators
 - 💬 General diagnostics or log messages
 
-The hook system also allows for **post-parsing flush** to any `IOSink`, including `stdout`, `stderr`, or files.
+The hook system also allows for **post-parsing tattle** to any `IOSink`, including `stdout`, `stderr`, or files.
 
 ---
 
@@ -29,7 +29,7 @@ abstract class ParserHook {
     required String message,
   });
 
-  Future<void> flush({
+  Future<void> tattle({
     IOSink? errorStream,
     IOSink? messageStream,
   });
@@ -38,13 +38,13 @@ abstract class ParserHook {
 
 - `error()` → Called when exceptions are caught during parsing
 - `message()` → Called for normal notes or structural warnings
-- `flush()` → Called once at the end of a parse job to emit all logs
+- `tattle()` → Called once at the end of a parse job to emit all logs
 
 ---
 
 ## 🦅 `MightyEagleParserHook` Implementation
 
-This implementation collects all messages into memory and emits them at flush:
+This implementation collects all messages into memory and emits them at tattle:
 
 ```dart
 final List<String> _messages = [];
@@ -55,7 +55,7 @@ Future<void> error(...) {
   _errorMessages.add('↪ Context: ...${stream.previewContext()}...');
 }
 
-Future<void> flush({IOSink? errorStream, IOSink? messageStream}) async {
+Future<void> tattle({IOSink? errorStream, IOSink? messageStream}) async {
   final err = errorStream ?? stderr;
   final out = messageStream ?? stdout;
 
@@ -83,10 +83,10 @@ final parser = MightyEagleParser(
 );
 
 await parser.parse();
-await hook.flush(); // required to emit logs
+await hook.tattle(); // required to emit logs
 ```
 
-> ✅ `flush()` is not called automatically.  
+> ✅ `tattle()` is not called automatically.  
 > You must **call it explicitly** or via `finally {}` after parsing completes.
 
 ---
