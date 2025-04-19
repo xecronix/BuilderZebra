@@ -25,9 +25,7 @@ class MightyEagleParserHook implements ParserHook {
           final char = stream.current;
           // I don't want to call afterChar
           // 'peek' because we're walking backwards.
-          final afterChar =
-              stream
-                  .next; 
+          final afterChar = stream.next;
           if (char == ':' && afterChar == '}') {
             if (stream.isEscaped == false) {
               nestLevel--;
@@ -66,7 +64,7 @@ class MightyEagleParserHook implements ParserHook {
   }
 
   @override
-  Future<void> flush({IOSink? errorStream, IOSink? messageStream}) async {
+  Future<void> report({IOSink? errorStream, IOSink? messageStream}) async {
     final err = errorStream ?? stderr;
     final out = messageStream ?? stdout;
 
@@ -79,6 +77,10 @@ class MightyEagleParserHook implements ParserHook {
       err.writeln(aggregateErrors);
     }
   }
+
+  @override
+  Future<void> tattle({IOSink? errorStream, IOSink? messageStream}) =>
+      report(errorStream: errorStream, messageStream: messageStream);
 
   String get aggregateMessages => _messages.join('\n');
   String get aggregateErrors => _errorMessages.join('\n');

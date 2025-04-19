@@ -9,15 +9,9 @@ abstract class ParserHook {
     required Exception exception,
   });
 
-  Future<void> message({
-    required CharStream stream,
-    required String message,
-  });
+  Future<void> message({required CharStream stream, required String message});
 
-  Future<void> flush({
-    IOSink? errorStream,
-    IOSink? messageStream
-  });
+  Future<void> report({IOSink? errorStream, IOSink? messageStream});
+  Future<void> tattle({IOSink? errorStream, IOSink? messageStream}) =>
+      report(errorStream: errorStream, messageStream: messageStream);
 }
-
-

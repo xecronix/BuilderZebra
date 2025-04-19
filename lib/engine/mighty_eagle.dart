@@ -29,7 +29,7 @@ class MightyEagleParser {
     try {
       output.write(await beginParse(stream: stream));
     } finally {
-      await parserHook.flush();
+      await parserHook.tattle();
     }
 
     return output.toString();
