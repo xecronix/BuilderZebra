@@ -1,0 +1,4 @@
+class {=name:}Controller {
+	{@fields final {=type:}{@nullable|?|:} {=name:};
+	:}
+}

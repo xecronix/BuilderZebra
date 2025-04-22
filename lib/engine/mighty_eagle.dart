@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:builderzebra/runtime/dispatcher.dart';
+import 'package:builderzebra/abstracts/dispatcher.dart';
 import 'package:builderzebra/engine/char_stream.dart';
-import 'package:builderzebra/runtime/parser_hook.dart';
+import 'package:builderzebra/abstracts/parser_hook.dart';
 import 'package:builderzebra/runtime/mighty_eagle_parser_hook.dart';
 import 'package:builderzebra/runtime/template_parse_exception.dart';
 
@@ -145,7 +145,7 @@ class MightyEagleParser {
       if (rule.isNotEmpty) {
         output.write(
           await dispatcher.call(
-            rule: rule.toString(),
+            actionRule: rule.toString(),
             args: dispatcherArgs.toString(),
             template: subTemplate.toString(),
             context: context,
@@ -225,6 +225,7 @@ class MightyEagleParser {
 
   Future<String> openDispatchArgs({required CharStream stream}) async {
     final output = StringBuffer();
+    final previewText = stream.previewContext();
 
     while (stream.hasMore) {
       final char = stream.current;
@@ -238,7 +239,7 @@ class MightyEagleParser {
         await parserHook.message(
           stream: stream,
           message:
-              '[$sus] Found a closing tag while parsing dispatchArgs: ${stream.previewContext()}',
+              '[$sus] `$previewText` Found a closing tag while parsing dispatchArgs: ${stream.previewContext()}',
         );
       } else {
         output.write(char);

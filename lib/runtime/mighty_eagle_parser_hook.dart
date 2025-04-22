@@ -1,12 +1,25 @@
 import 'dart:io';
 
 import 'package:builderzebra/engine/char_stream.dart';
-import 'package:builderzebra/runtime/parser_hook.dart';
+import 'package:builderzebra/abstracts/parser_hook.dart';
 import 'package:builderzebra/runtime/template_parse_exception.dart';
 
 class MightyEagleParserHook implements ParserHook {
+  MightyEagleParserHook({
+    IOSink? defaultMessageOutStream,
+    IOSink? defaultErrorOutStream,
+  }): defaultMessageOutStream = defaultMessageOutStream ?? stdout,
+      defaultErrorOutStream = defaultErrorOutStream ?? stderr;
+
+  @override
+  final IOSink? defaultMessageOutStream;
+
+  @override
+  final IOSink? defaultErrorOutStream;
+
   final List<String> _messages = [];
   final List<String> _errorMessages = [];
+
   @override
   Future<void> error({
     required CharStream stream,
@@ -65,8 +78,8 @@ class MightyEagleParserHook implements ParserHook {
 
   @override
   Future<void> report({IOSink? errorStream, IOSink? messageStream}) async {
-    final err = errorStream ?? stderr;
-    final out = messageStream ?? stdout;
+    final err = errorStream ?? defaultErrorOutStream ?? stderr;
+    final out = messageStream ?? defaultMessageOutStream ?? stderr;
 
     // this instead
     if (_messages.isNotEmpty) {

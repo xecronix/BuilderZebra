@@ -10,6 +10,7 @@ Future<void> main() async {
   final filesToCompile = [
     'zebra_validate.dart',
     'zebra_linter.dart',
+    'zebra_scaffold.dart',
    ];
 
   final dartExecutable = await findDartExecutable();

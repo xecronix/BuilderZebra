@@ -1,10 +1,10 @@
-import 'package:builderzebra/runtime/dispatcher.dart';
+import 'package:builderzebra/abstracts/dispatcher.dart';
 import 'package:builderzebra/engine/mighty_eagle.dart';
 
 class EchoDispatcher implements Dispatcher {
   @override
   Future<String> call({
-    required String rule,
+    required String actionRule,
     required String template,
     String? args,
     required Map<String, String> context,

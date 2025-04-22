@@ -1,0 +1,4 @@
+class {=name:}Model {
+	{@fields final {=type:}{@nullable|?|:} {=name:};
+	:}
+}

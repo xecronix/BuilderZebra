@@ -4,7 +4,7 @@
 import 'dart:io';
 import 'package:builderzebra/engine/mighty_eagle.dart';
 import 'package:builderzebra/runtime/mighty_eagle_parser_hook.dart';
-import 'package:builderzebra/runtime/dispatcher.dart';
+import 'package:builderzebra/abstracts/dispatcher.dart';
 import 'package:builderzebra/runtime/echo_dispatcher.dart';
 
 void printUsage() {
@@ -14,13 +14,38 @@ void printUsage() {
   print('  -f <file>         Validate a single .eagle template');
   print('  -d <directory>    Validate all .eagle files in directory');
   print('  -o <file>         Write output to this file (overwrites)');
-  print('  -O <file>         Also print to stdout/stderr in addition to output file');
+  print(
+    '  -O <file>         Also print to stdout/stderr in addition to output file',
+  );
   print('  -h                Show this help menu');
 }
 
-Future<void> validateFile(File file, {IOSink? output}) async {
-  final hook = MightyEagleParserHook();
+Future<void> validateFile(
+  File file, {
+  IOSink? output,
+  bool writeToConsole = true,
+}) async {
+  MightyEagleParserHook hook;
   final template = await file.readAsString();
+
+  if (output == null) {
+    // parameter validation.  Don't send me writeToConsol false
+    // without sending me some place else to write.
+    writeToConsole = true;
+  }
+
+  if (writeToConsole) {
+    // OK.  I get it.  We're going to write to the console.
+    // easy. Just use the default contructor. 
+    hook = MightyEagleParserHook();
+  } else {
+    // Got it! Squelch the console and send validation results
+    // to someother IOSink.  NP.
+    hook = MightyEagleParserHook(
+      defaultErrorOutStream: output,
+      defaultMessageOutStream: output,
+    );
+  }
 
   final parser = MightyEagleParser(
     template: template,
@@ -30,10 +55,15 @@ Future<void> validateFile(File file, {IOSink? output}) async {
   );
 
   await parser.parse();
-  await hook.tattle(
-    errorStream: output ?? stderr,
-    messageStream: output ?? stdout,
-  );
+  if(writeToConsole && output != null){
+    // Oh... I see you wanted both an IOSink and console
+    // output.  So, earlier I sent the data to the 
+    // console, now I'll send it to the some other IOSink. 
+
+    await hook.tattle(
+      errorStream: output,
+      messageStream: output);
+    }
 }
 
 Future<void> main(List<String> args) async {
