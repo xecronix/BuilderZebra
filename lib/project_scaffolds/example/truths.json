@@ -1,0 +1,50 @@
+{
+    "Person": {
+        "name": "Person",
+        "scope": "private",
+        "fields": [
+            {
+                "name": "firstName",
+                "type": "String",
+                "nullable": false
+            },
+            {
+                "name": "age",
+                "type": "int",
+                "nullable": true
+            }
+        ]
+    },
+    "Education": {
+        "name": "Person",
+        "scope": "private",
+        "fields": [
+            {
+                "name": "firstName",
+                "type": "String",
+                "nullable": false
+            },
+            {
+                "name": "age",
+                "type": "int",
+                "nullable": true
+            }
+        ]
+    },
+    "Address": {
+        "name": "Person",
+        "scope": "private",
+        "fields": [
+            {
+                "name": "firstName",
+                "type": "String",
+                "nullable": false
+            },
+            {
+                "name": "age",
+                "type": "int",
+                "nullable": true
+            }
+        ]
+    }
+}

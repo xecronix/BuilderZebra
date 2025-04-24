@@ -36,11 +36,11 @@ Future<void> validateFile(
 
   if (writeToConsole) {
     // OK.  I get it.  We're going to write to the console.
-    // easy. Just use the default contructor. 
+    // easy. Just use the default constructor. 
     hook = MightyEagleParserHook();
   } else {
     // Got it! Squelch the console and send validation results
-    // to someother IOSink.  NP.
+    // to some other IOSink.  NP.
     hook = MightyEagleParserHook(
       defaultErrorOutStream: output,
       defaultMessageOutStream: output,

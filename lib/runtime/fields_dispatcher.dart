@@ -1,10 +1,11 @@
 import 'package:builderzebra/abstracts/dispatcher.dart';
+import 'package:builderzebra/abstracts/base_truth_binder.dart';
 import 'package:builderzebra/engine/mighty_eagle.dart';
-import 'package:builderzebra/runtime/static_truth_binder.dart';
+
 
 class FieldsDispatcher implements Dispatcher {
   FieldsDispatcher({required this.binder});
-  StaticTruthBinder binder;
+  BaseTruthBinder binder;
 
   @override
   Future<String> call({

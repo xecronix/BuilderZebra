@@ -130,6 +130,8 @@ class MightyEagleParser {
               stream.advance(); // move to the }
               break;
             }
+          } else {
+            rule.write(char);
           }
         } else {
           // we're not looking for args or a subtemplate

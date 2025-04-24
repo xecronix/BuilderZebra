@@ -8,9 +8,8 @@ import 'dart:io';
 Future<void> main() async {
   // 🧱 Files to compile
   final filesToCompile = [
-    'zebra_validate.dart',
-    'zebra_linter.dart',
-    'zebra_scaffold.dart',
+    'eagle_validator.dart',
+    'builder_zebra.dart',
    ];
 
   final dartExecutable = await findDartExecutable();

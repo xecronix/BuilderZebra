@@ -1,0 +1,23 @@
+{
+    "scaffold": {
+    "Model": {
+      "template":  "model.eagle",
+      "output":  "temp/lib/core/models/",
+      "outputFilePattern": "%{truth.name}_model.js",
+      "truths": ["Person", "Address", "Education"]
+    },
+    "Controller": {
+      "template":  "controller.eagle",
+      "output":  "temp/lib/core/controllers/",
+      "outputFilePattern": "%{truth.name}_controller.js",
+      "truths": ["Person"],
+      "overWrite": "never"
+    },
+    "Dao": {
+      "template":  "dao.eagle",
+      "output":  "temp/lib/core/data/",
+      "outputFilePattern": "%{truth.name}_dao.js",
+      "truths": ["Person", "Address", "Education"]
+    }
+  }
+}

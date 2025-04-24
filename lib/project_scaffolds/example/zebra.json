@@ -1,0 +1,6 @@
+{
+    "builderOptions": {
+        "overwriteExistingFiles": false,
+        "workingDirectory": "C:/dev/builderzebra/lib/"
+    }
+}
