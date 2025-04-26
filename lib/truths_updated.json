@@ -1,0 +1,269 @@
+{
+  "journal": {
+    "name": "journal",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "content",
+        "type": "String",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "String",
+        "nullable": false
+      },
+      {
+        "name": "updated_at",
+        "type": "String",
+        "nullable": false
+      },
+      {
+        "name": "highlight",
+        "type": "String",
+        "nullable": true
+      },
+      {
+        "name": "end_date",
+        "type": "String",
+        "nullable": true
+      }
+    ],
+    "className": "Journal"
+  },
+  "todo_entry": {
+    "name": "todo_entry",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "title",
+        "type": "String",
+        "nullable": false
+      },
+      {
+        "name": "notes",
+        "type": "String",
+        "nullable": true
+      },
+      {
+        "name": "due_date",
+        "type": "String",
+        "nullable": true
+      },
+      {
+        "name": "parent_id",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "created_at",
+        "type": "String",
+        "nullable": false
+      },
+      {
+        "name": "updated_at",
+        "type": "String",
+        "nullable": false
+      }
+    ],
+    "className": "TodoEntry"
+  },
+  "todo_state": {
+    "name": "todo_state",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "todo_id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "status_id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "priority_id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "String",
+        "nullable": false
+      }
+    ],
+    "className": "TodoState"
+  },
+  "status": {
+    "name": "status",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "nullable": true
+      },
+      {
+        "name": "is_active",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "rank",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "end_date",
+        "type": "String",
+        "nullable": true
+      }
+    ],
+    "className": "Status"
+  },
+  "priority": {
+    "name": "priority",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "nullable": true
+      },
+      {
+        "name": "rank",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "end_date",
+        "type": "String",
+        "nullable": true
+      }
+    ],
+    "className": "Priority"
+  },
+  "tag_type": {
+    "name": "tag_type",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "nullable": false
+      },
+      {
+        "name": "end_date",
+        "type": "String",
+        "nullable": true
+      }
+    ],
+    "className": "TagType"
+  },
+  "tag": {
+    "name": "tag",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "tag_type_id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "String",
+        "nullable": false
+      },
+      {
+        "name": "display_name",
+        "type": "String",
+        "nullable": true
+      },
+      {
+        "name": "color",
+        "type": "String",
+        "nullable": true
+      },
+      {
+        "name": "end_date",
+        "type": "String",
+        "nullable": true
+      }
+    ],
+    "className": "Tag"
+  },
+  "journal_tag": {
+    "name": "journal_tag",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "journal_id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "tag_id",
+        "type": "int",
+        "nullable": false
+      }
+    ],
+    "className": "JournalTag"
+  },
+  "todo_tag": {
+    "name": "todo_tag",
+    "scope": "public",
+    "fields": [
+      {
+        "name": "todo_id",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "tag_id",
+        "type": "int",
+        "nullable": false
+      }
+    ],
+    "className": "TodoTag"
+  },
+  "__meta__": {
+    "source": "db_helper.dart",
+    "generated": true
+  }
+}

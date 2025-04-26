@@ -3,3 +3,6 @@
 .dart_tool/
 .packages
 build/
+lib/zebra/
+lib/temp/
+BuilderZebraWiki/.obsidian/

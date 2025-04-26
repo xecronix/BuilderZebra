@@ -1,13 +1,14 @@
-import 'package:builderzebra/abstracts/base_truth_binder.dart';
+// 📁 File: runtime/truth_dispatcher.dart
+
 import 'package:builderzebra/abstracts/dispatcher.dart';
-import 'package:builderzebra/engine/mighty_eagle.dart';
-import 'package:builderzebra/runtime/fields_dispatcher.dart';
-class TruthDispatcher implements Dispatcher {
-  TruthDispatcher({required this.binder}) {
-    _actionDispatchers['fields'] = FieldsDispatcher(binder: binder);
-  }
-  BaseTruthBinder binder;
-  final Map<String, dynamic> _actionDispatchers = <String, dynamic>{};
+import 'package:builderzebra/abstracts/base_truth_binder.dart';
+import 'package:builderzebra/runtime/dispatcher_factory.dart';
+
+class TruthDispatcher extends Dispatcher {
+  TruthDispatcher({
+    required super.binder,
+    required super.dispatcherFactory,
+  });
 
   @override
   Future<String> call({
@@ -16,7 +17,11 @@ class TruthDispatcher implements Dispatcher {
     String? args,
     required Map<String, String> context,
   }) async {
-    final dispatcher = _actionDispatchers[actionRule];
+    final dispatcher = dispatcherFactory.dispatch(actionRule);
+    if (dispatcher == null) {
+      throw Exception('Unknown action: $actionRule');
+    }
+
     return await dispatcher.call(
       actionRule: actionRule,
       template: template,

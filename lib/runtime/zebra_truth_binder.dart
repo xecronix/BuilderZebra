@@ -1,50 +1,53 @@
-// 📁 File: zebra_truth_binder.dart
+// 📁 File: runtime/zebra_truth_binder.dart
 
 import 'package:builderzebra/abstracts/base_truth_binder.dart';
 
 class ZebraTruthBinder implements BaseTruthBinder {
-  final Map<String, dynamic> _truths;
-
   ZebraTruthBinder(this._truths);
 
+  final Map<String, dynamic> _truths;
+
   @override
-  List<String> getAllTruthNames() => _truths.keys.toList();
+  List<String> getAllTruthNames() => _truths.keys
+      .where((k) => k != '__meta__')
+      .toList();
 
   @override
   Future<Map<String, String>> findTruth({required String truthName}) async {
-    final retval = <String, String>{};
     final truth = _truths[truthName];
-    final keys = ['name', 'scope'];
-    if (truth != null) {
-      for (final key in keys) {
-        retval[key] = '${truth[key] ?? ''}';
-      }
-    }
-    return retval;
-  }
+    final result = <String, String>{};
 
-  @override
-  Future<List<Map<String, String>>> findFields({required String truthName}) async {
-    final retval = <Map<String, String>>[];
-    final truth = _truths[truthName];
-
-    if (truth != null && truth['fields'] is List) {
-      final fields = truth['fields'] as List;
-      for (final field in fields) {
-        if (field is Map) {
-          retval.add(_flattenField(field));
+    if (truth != null && truth is Map<String, dynamic>) {
+      for (final entry in truth.entries) {
+        if (entry.value is! List && entry.value is! Map) {
+          result[entry.key] = '${entry.value ?? ''}';
         }
       }
     }
-    return retval;
+
+    return result;
   }
 
-  Map<String, String> _flattenField(Map field) {
-    final keys = ['name', 'type', 'nullable', 'default'];
-    final result = <String, String>{};
-    for (final key in keys) {
-      result[key] = '${field[key] ?? ''}';
+  @override
+  Future<List<Map<String, String>>> findChildren({
+    required String truthName,
+    required String childKey,
+  }) async {
+    final result = <Map<String, String>>[];
+    final truth = _truths[truthName];
+
+    if (truth != null && truth[childKey] is List) {
+      for (final item in truth[childKey]) {
+        if (item is Map<String, dynamic>) {
+          final flatItem = <String, String>{};
+          for (final entry in item.entries) {
+            flatItem[entry.key] = '${entry.value ?? ''}';
+          }
+          result.add(flatItem);
+        }
+      }
     }
+
     return result;
   }
 }

@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:builderzebra/runtime/zebra_truth_binder.dart'; // Static TruthBinder implementation
 import 'package:builderzebra/engine/mighty_eagle.dart';
 import 'package:builderzebra/runtime/truth_dispatcher.dart';
+import 'package:builderzebra/runtime/dispatcher_factory.dart';
 
 void main(List<String> args) async {
   // Dispatch init and validate commands
@@ -22,36 +23,58 @@ void main(List<String> args) async {
   }
 
   final root = Directory.current.path;
+  //final root = 'C:/dev/builderzebra/lib';
   final zebraJson = File(p.join(root, 'zebra', 'zebra.json'));
   final scaffoldJson = File(p.join(root, 'zebra', 'scaffold.json'));
+  final truthsJson = File(p.join(root, 'zebra', 'truths.json'));
 
-if (!await zebraJson.exists() || !await scaffoldJson.exists()) {
-  print('⚠️  Missing zebra.json or scaffold.json. Run `builder_zebra init` first.');
-  return;
-}
+  if (!await zebraJson.exists() || !await scaffoldJson.exists()) {
+    print(
+      '⚠️  Missing zebra.json or scaffold.json. Run `builder_zebra init` first.',
+    );
+    return;
+  }
 
-final programControl = jsonDecode(await zebraJson.readAsString());
-final scaffold = jsonDecode(await scaffoldJson.readAsString());
-final truthData = jsonDecode(await zebraJson.readAsString());
-
+  final programControl = jsonDecode(await zebraJson.readAsString());
+  final scaffold = jsonDecode(await scaffoldJson.readAsString());
+  final truthData = jsonDecode(await truthsJson.readAsString());
 
   String resolveOutputFilePattern(String pattern, Map<String, String> context) {
-    return pattern.replaceAll('%{truth.name}', context['name']?.toLowerCase() ?? '');
+    return pattern.replaceAll(
+      '%{truth.name}',
+      context['name']?.toLowerCase() ?? '',
+    );
   }
 
   final scaffoldMap = scaffold['scaffold'];
   final binder = ZebraTruthBinder(truthData);
-  final dispatcher = TruthDispatcher(binder: binder);
+  final dispatcherFactory = new DispatcherFactory(binder: binder);
+  final dispatcher = dispatcherFactory.dispatch('truth');
+  if (dispatcher == null) {
+    throw ("DispatcherFactory tried to build a TruthDispatcher but couldn't");
+  }
 
   for (final outputName in scaffoldMap.keys) {
     final outputConfig = scaffoldMap[outputName] as Map<String, dynamic>;
 
     final outputDir = outputConfig['output'] as String;
     final pattern = outputConfig['outputFilePattern'] as String;
-    final truths = outputConfig['truths'] as List;
-    final templatePath = outputConfig['template'] as String;
-    final template = await File(p.join(root, 'zebra/eagles', templatePath)).readAsString();
+    final List<String> configuredTruths =
+        (outputConfig['truths'] as List?)?.cast<String>() ??
+        binder.getAllTruthNames();
 
+    final List<String> excludedTruths =
+        (outputConfig['excludeTruths'] as List?)?.cast<String>() ?? [];
+
+    final truths =
+        configuredTruths
+            .where((truth) => !excludedTruths.contains(truth))
+            .toList();
+
+    final templatePath = outputConfig['template'] as String;
+    final template =
+        await File(p.join(root, 'zebra/eagles', templatePath)).readAsString();
+    var rendered = '';
     for (final truthName in truths) {
       final context = await binder.findTruth(truthName: truthName);
 
@@ -61,7 +84,7 @@ final truthData = jsonDecode(await zebraJson.readAsString());
         dispatcher: dispatcher,
       );
 
-      final rendered = await parser.parse();
+      rendered = await parser.parse();
 
       final fileName = resolveOutputFilePattern(pattern, context);
       final targetPath = p.join(root, outputDir, fileName);
@@ -69,10 +92,11 @@ final truthData = jsonDecode(await zebraJson.readAsString());
       await Directory(outputDir).create(recursive: true);
 
       final file = File(targetPath);
-      final shouldWrite = outputConfig['overWrite'] != 'never' || !await file.exists();
+      final shouldWrite =
+          outputConfig['overwrite'] != 'never' || !await file.exists();
 
       if (shouldWrite) {
-        print('📝 Writing file: \$targetPath');
+        print('📝 Writing file: $targetPath');
         await file.writeAsString(rendered);
       } else {
         print('⏭️ Skipped $targetPath (overwrite = never)');
@@ -88,7 +112,9 @@ Future<void> runValidate() async {
   final zebraConfig = File(p.join(root, 'zebra', 'zebra.json'));
 
   if (!await scaffold.exists() || !await truths.exists()) {
-    print('⚠️  Missing scaffold.json or truths.json. Run `builder_zebra init` first.');
+    print(
+      '⚠️  Missing scaffold.json or truths.json. Run `builder_zebra init` first.',
+    );
     return;
   }
 
@@ -98,7 +124,8 @@ Future<void> runValidate() async {
 
   final scaffoldMap = scaffoldData['scaffold'] as Map<String, dynamic>;
   final binder = ZebraTruthBinder(truthData);
-  final dispatcher = TruthDispatcher(binder: binder);
+  final dispatcherFactory = new DispatcherFactory(binder: binder);
+  final dispatcher = dispatcherFactory.dispatch('truth');
 
   print('🔍 Running BuilderZebra in validation mode...');
 
@@ -122,15 +149,19 @@ Future<void> runValidate() async {
         continue;
       }
 
-      final context = await binder.findTruth(truthName: truthName);
-      final parser = MightyEagleParser(
-        template: template,
-        context: context,
-        dispatcher: dispatcher,
-      );
+      if (template != null && dispatcher != null) {
+        final context = await binder.findTruth(truthName: truthName);
+        final parser = MightyEagleParser(
+          template: template,
+          context: context,
+          dispatcher: dispatcher,
+        );
 
-      final rendered = await parser.parse();
-      print('✅ Rendered output for $truthName in $outputName:\n$rendered');
+        final rendered = await parser.parse();
+        print('✅ Rendered output for $truthName in $outputName:\n$rendered');
+      } else {
+        throw ("Tried to build and parse but couldn't.  Null checks failed");
+      }
     }
   }
 }
@@ -142,8 +173,9 @@ Future<void> runInit(String templateName) async {
     return;
   }
 
-  
-  final templateSource = Directory(p.join(zebraHome, 'project_scaffolds', templateName));
+  final templateSource = Directory(
+    p.join(zebraHome, 'project_scaffolds', templateName),
+  );
   final targetZebraDir = Directory('zebra');
 
   if (!await templateSource.exists()) {
@@ -166,7 +198,3 @@ Future<void> runInit(String templateName) async {
 
   print('✅ Project scaffold "$templateName" copied to ./zebra');
 }
-
-
-
-

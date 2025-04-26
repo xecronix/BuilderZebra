@@ -3,9 +3,12 @@
 
 import 'dart:io';
 import 'package:builderzebra/engine/mighty_eagle.dart';
+import 'package:builderzebra/runtime/dispatcher_factory.dart';
 import 'package:builderzebra/runtime/mighty_eagle_parser_hook.dart';
 import 'package:builderzebra/abstracts/dispatcher.dart';
 import 'package:builderzebra/runtime/echo_dispatcher.dart';
+import 'package:builderzebra/runtime/dispatcher_factory.dart';
+import 'package:builderzebra/runtime/zebra_truth_binder.dart';
 
 void printUsage() {
   print('Zebra Template Validator – ${DateTime.now().year}');
@@ -47,10 +50,15 @@ Future<void> validateFile(
     );
   }
 
+  final binder=ZebraTruthBinder({});
+  final dispatcher = DispatcherFactory(binder: binder).dispatch('echo');
+  if (dispatcher == null){
+    throw ("DispatcherFactory Couldn't build EchoDispatcher");
+  }
   final parser = MightyEagleParser(
     template: template,
     context: {}, // No substitutions
-    dispatcher: EchoDispatcher(), // Do nothing dispatcher
+    dispatcher: dispatcher,
     parserHook: hook,
   );
 
