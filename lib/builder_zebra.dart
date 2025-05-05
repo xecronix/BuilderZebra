@@ -1,4 +1,6 @@
 // 📁 File: builder_zebra.dart
+// dart compile exe builder_zebra.dart -o builder_zebra.exe
+// dart compile exe builder_zebra.dart -o bz.exe
 
 import 'dart:io';
 import 'dart:convert';
@@ -101,6 +103,37 @@ void main(List<String> args) async {
       } else {
         print('⏭️ Skipped $targetPath (overwrite = never)');
       }
+    }
+  }
+  // 🧩 Process co-managed files
+  final coManaged = scaffold['co-managed'] as Map<String, dynamic>?;
+
+  if (coManaged != null) {
+    for (final entry in coManaged.entries) {
+      final config = entry.value as Map<String, dynamic>;
+      final filePath = p.join(root, config['template'] as String);
+      final truthName = config['truth'] as String;
+
+      final file = File(filePath);
+      if (!await file.exists()) {
+        print('⚠️ Co-managed file not found: $filePath — skipping.');
+        continue;
+      }
+
+      final originalContent = await file.readAsString();
+
+      final context = await binder.findTruth(truthName: truthName);
+
+      final parser = MightyEagleParser(
+        template: originalContent,
+        context: context,
+        dispatcher: dispatcher,
+      );
+
+      final rendered = await parser.parse();
+
+      print('🔄 Updating co-managed file: $filePath');
+      await file.writeAsString(rendered);
     }
   }
 }

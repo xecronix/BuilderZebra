@@ -8,9 +8,8 @@ class ZebraTruthBinder implements BaseTruthBinder {
   final Map<String, dynamic> _truths;
 
   @override
-  List<String> getAllTruthNames() => _truths.keys
-      .where((k) => k != '__meta__')
-      .toList();
+  List<String> getAllTruthNames() =>
+      _truths.keys.where((k) => k != '__meta__').toList();
 
   @override
   Future<Map<String, String>> findTruth({required String truthName}) async {
@@ -23,6 +22,8 @@ class ZebraTruthBinder implements BaseTruthBinder {
           result[entry.key] = '${entry.value ?? ''}';
         }
       }
+      // Inject __KEY_NAME__ if needed
+      result['__KEY_NAME__'] = truthName;
     }
 
     return result;
@@ -36,14 +37,30 @@ class ZebraTruthBinder implements BaseTruthBinder {
     final result = <Map<String, String>>[];
     final truth = _truths[truthName];
 
-    if (truth != null && truth[childKey] is List) {
-      for (final item in truth[childKey]) {
-        if (item is Map<String, dynamic>) {
-          final flatItem = <String, String>{};
-          for (final entry in item.entries) {
-            flatItem[entry.key] = '${entry.value ?? ''}';
+    if (truth != null && truth[childKey] != null) {
+      final child = truth[childKey];
+
+      if (child is List) {
+        // Existing behavior: list of objects
+        for (final item in child) {
+          if (item is Map<String, dynamic>) {
+            final flatItem = <String, String>{};
+            for (final entry in item.entries) {
+              flatItem[entry.key] = '${entry.value ?? ''}';
+            }
+            result.add(flatItem);
           }
-          result.add(flatItem);
+        }
+      } else if (child is Map<String, dynamic>) {
+        // NEW behavior: object of objects
+        for (final entry in child.entries) {
+          if (entry.value is Map<String, dynamic>) {
+            final flatItem = <String, String>{'__KEY_NAME__': entry.key};
+            for (final field in entry.value.entries) {
+              flatItem[field.key] = '${field.value ?? ''}';
+            }
+            result.add(flatItem);
+          }
         }
       }
     }

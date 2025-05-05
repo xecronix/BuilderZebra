@@ -1,5 +1,3 @@
-💥 **YES!**  
-Let's capture the true heart of the MightyEagle Language while it's fresh, precise, and powerful. 🦅🛠️
 
 ---
 
@@ -40,11 +38,11 @@ It prioritizes **clarity**, **consistency**, and **dynamic expansion** without r
 
 ### 2. Arguments
 
-| Dispatcher | Argument Format | Example |
-|:-----------|:----------------|:--------|
-| `if` | **$** prefix required | `{@if|$field==value|Template Content:}` |
-| `each` | **$** prefix now recommended | `{@each|$collection|Template Content:}` |
-| `echo` | No special prefix needed | `{=field:}` |
+| Dispatcher |  Example     |              |                     |
+| :--------- | :-------------------------- | :------------------ | 
+| `if`       |  `{@if       | field==value | Template Content:}` |
+| `each`     | `{@each      | collection   | Template Content:}` |
+| `echo`     | `{=field:}`  |              |                     |
 
 ✅ Arguments are split by `|`.  
 ✅ **Spaces are significant** — extra spaces can cause mismatches.
@@ -53,25 +51,25 @@ It prioritizes **clarity**, **consistency**, and **dynamic expansion** without r
 
 ### 3. Conditionals (`if`)
 
-| Rule | Behavior |
-|:-----|:---------|
-| Comparison Operators | Only `==` and `!=` are supported. |
-| LHS | Must be a `$field`. |
-| RHS | Always treated as a **literal string**. |
-| Quotes | Quotes around RHS values are stripped automatically. |
-| Spaces | Spaces inside values matter — *trim carefully*. |
-| No parsing expressions | No `>`, `<`, `>=`, `&&`, etc. (yet). |
+| Rule                   | Behavior                                             |
+| :--------------------- | :--------------------------------------------------- |
+| Comparison Operators   | Only `==` and `!=` are supported.                    |
+| LHS                    | Must be a `field`.                                   |
+| RHS                    | Always treated as a **literal string**.              |
+| Quotes                 | Quotes around RHS values are stripped automatically. |
+| Spaces                 | Spaces inside values matter — *trim carefully*.      |
+| No parsing expressions | No `>`, `<`, `>=`, `&&`, etc. (yet).                 |
 
 ---
 
 ### 4. Loops (`each`)
 
-| Rule | Behavior |
-|:-----|:---------|
-| Argument | Should now always be `$collection` (example: `$fields`). |
-| Binder | Supplies a list of maps for children. |
-| Each iteration | Runs the inner template once per child. |
-| Inner template | Has access to each child's fields. |
+| Rule           | Behavior                                               |
+| :------------- | :----------------------------------------------------- |
+| Argument       | Should now always be `collection` (example: `fields`). |
+| Binder         | Supplies a list of maps for children.                  |
+| Each iteration | Runs the inner template once per child.                |
+| Inner template | Has access to each child's fields.                     |
 
 ---
 

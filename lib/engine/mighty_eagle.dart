@@ -100,8 +100,9 @@ class MightyEagleParser {
       while (stream.hasMore) {
         final char = stream.current;
         final peek = stream.next;
+        final ruleString = rule.toString();
         if (rule.isNotEmpty) {
-          if (char == ' ') {
+          if (char == ' ' || (char != null && char.trim() == '')) {
             // we didn't have any optional args
             // time to get the subtemplate.
             stream.advance();

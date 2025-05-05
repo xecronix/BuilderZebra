@@ -11,15 +11,13 @@ import 'package:builderzebra/runtime/dispatcher_factory.dart';
 import 'package:builderzebra/runtime/zebra_truth_binder.dart';
 
 void printUsage() {
-  print('Zebra Template Validator – ${DateTime.now().year}');
-  print('Usage: dart validator_zebra.dart [options]');
+  print('Mighty Eagle Template Validator – ${DateTime.now().year}');
+  print('Usage: eagle_validator [options]');
   print('Options:');
   print('  -f <file>         Validate a single .eagle template');
   print('  -d <directory>    Validate all .eagle files in directory');
   print('  -o <file>         Write output to this file (overwrites)');
-  print(
-    '  -O <file>         Also print to stdout/stderr in addition to output file',
-  );
+  print('  -O <file>         Also print to stdout/stderr in addition to output file');
   print('  -h                Show this help menu');
 }
 
