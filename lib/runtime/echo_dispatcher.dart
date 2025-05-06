@@ -18,11 +18,6 @@ class EchoDispatcher extends Dispatcher {
     String? args,
     required Map<String, String> context,
   }) async {
-    final me = MightyEagleParser(
-      context: context,
-      template: template,
-      dispatcher: this,
-    );
-    return await me.parse();
+    return template;
   }
 }

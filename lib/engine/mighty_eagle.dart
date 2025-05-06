@@ -100,7 +100,6 @@ class MightyEagleParser {
       while (stream.hasMore) {
         final char = stream.current;
         final peek = stream.next;
-        final ruleString = rule.toString();
         if (rule.isNotEmpty) {
           if (char == ' ' || (char != null && char.trim() == '')) {
             // we didn't have any optional args

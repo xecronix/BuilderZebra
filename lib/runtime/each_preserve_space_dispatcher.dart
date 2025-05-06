@@ -6,7 +6,10 @@ import 'package:builderzebra/runtime/dispatcher_factory.dart';
 import 'package:builderzebra/engine/mighty_eagle.dart';
 
 class EachPreserveSpaceDispatcher extends Dispatcher {
-  EachPreserveSpaceDispatcher({required super.binder, required super.dispatcherFactory});
+  EachPreserveSpaceDispatcher({
+    required super.binder,
+    required super.dispatcherFactory,
+  });
 
   @override
   Future<String> call({
@@ -28,10 +31,12 @@ class EachPreserveSpaceDispatcher extends Dispatcher {
     );
 
     // Apply filters if any exist
-    final filteredChildren = filters.isEmpty
-        ? children
-        : children.where((child) => _passesAnyFilter(child, filters));
+    final filteredChildren =
+        filters.isEmpty
+            ? children
+            : children.where((child) => _passesAnyFilter(child, filters));
 
+    var i = 0;
     for (final child in filteredChildren) {
       final dispatcher = dispatcherFactory.dispatch('truth');
       if (dispatcher == null) {
@@ -39,6 +44,12 @@ class EachPreserveSpaceDispatcher extends Dispatcher {
           'DispatcherFactory could not create a "truth" dispatcher.',
         );
       }
+
+      child['each.index'] = i.toString();
+      child['each.listNumber'] = (i + 1).toString(); // 1-based number (for display)
+      child['each.first'] = (i == 0).toString();
+      child['each.last'] = (i == filteredChildren.length - 1).toString();
+      i++;
 
       final parser = MightyEagleParser(
         template: template,
@@ -60,13 +71,14 @@ class EachPreserveSpaceDispatcher extends Dispatcher {
     final parts = args.split(':');
     final collection = parts[0].trim();
 
-    final filters = parts.length > 1
-        ? parts.sublist(1).map((raw) {
-            final condition = _parseCondition(raw.trim());
-            if (condition != null) return condition;
-            throw Exception('Invalid filter condition: $raw');
-          }).toList()
-        : <FilterCondition>[];
+    final filters =
+        parts.length > 1
+            ? parts.sublist(1).map((raw) {
+              final condition = _parseCondition(raw.trim());
+              if (condition != null) return condition;
+              throw Exception('Invalid filter condition: $raw');
+            }).toList()
+            : <FilterCondition>[];
 
     return (collection, filters);
   }
@@ -88,7 +100,10 @@ class EachPreserveSpaceDispatcher extends Dispatcher {
   }
 
   /// Returns true if any filter matches the field map
-  bool _passesAnyFilter(Map<String, dynamic> field, List<FilterCondition> filters) {
+  bool _passesAnyFilter(
+    Map<String, dynamic> field,
+    List<FilterCondition> filters,
+  ) {
     for (final filter in filters) {
       final value = field[filter.field]?.toString() ?? '';
 
@@ -103,11 +118,12 @@ class EachPreserveSpaceDispatcher extends Dispatcher {
     return false;
   }
 }
-  /// Represents a single filter like `field == value`
-  class FilterCondition {
-    final String field;
-    final String operator; // '==' or '!='
-    final String value;
 
-    FilterCondition(this.field, this.operator, this.value);
-  }
+/// Represents a single filter like `field == value`
+class FilterCondition {
+  final String field;
+  final String operator; // '==' or '!='
+  final String value;
+
+  FilterCondition(this.field, this.operator, this.value);
+}

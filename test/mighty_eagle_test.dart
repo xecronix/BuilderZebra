@@ -46,10 +46,7 @@ void main() {
       final parser = MightyEagleParser(
         template: template,
         context: context,
-        dispatcher: EchoDispatcher(
-          binder: dummyBinder,
-          dispatcherFactory: dummyFactory,
-        ),
+        dispatcher: dummyFactory.dispatch('truth')!
       );
 
       final output = await parser.parse();
@@ -64,10 +61,7 @@ void main() {
       final parser = MightyEagleParser(
         template: template,
         context: context,
-        dispatcher: EchoDispatcher(
-          binder: dummyBinder,
-          dispatcherFactory: dummyFactory,
-        ),
+        dispatcher: dummyFactory.dispatch('truth')!,
         parserHook: hook,
       );
 
@@ -77,16 +71,13 @@ void main() {
     });
 
     test('should substitute context variable with embedded dispatcher', () async {
-      const template = 'English: {@greeting Hello, {=name:}!:}';
+      const template = 'English: {@tight Hello, {=name:}!:}';
       final context = {'name': 'Ronald'};
 
       final parser = MightyEagleParser(
         template: template,
         context: context,
-        dispatcher: EchoDispatcher(
-          binder: dummyBinder,
-          dispatcherFactory: dummyFactory,
-        ),
+        dispatcher: dummyFactory.dispatch('truth')!
       );
 
       final output = await parser.parse();
@@ -97,10 +88,7 @@ void main() {
       final parser = MightyEagleParser(
         template: '',
         context: {},
-        dispatcher: EchoDispatcher(
-          binder: dummyBinder,
-          dispatcherFactory: dummyFactory,
-        ),
+        dispatcher: dummyFactory.dispatch('truth')!
       );
 
       final stream = CharStream(r'foo\|bar|');
@@ -112,10 +100,7 @@ void main() {
       final parser = MightyEagleParser(
         template: '',
         context: {},
-        dispatcher: EchoDispatcher(
-          binder: dummyBinder,
-          dispatcherFactory: dummyFactory,
-        ),
+        dispatcher: dummyFactory.dispatch('truth')!
       );
 
       final subtemplate = '''
