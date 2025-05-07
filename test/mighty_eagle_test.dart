@@ -14,6 +14,22 @@ import 'package:builderzebra/runtime/mighty_eagle_parser_hook.dart';
 import 'package:builderzebra/abstracts/base_truth_binder.dart';
 
 class DummyBinder implements BaseTruthBinder {
+  /// Pushes a single conditional logic unit onto the stack
+  @override
+  void stackPush(Map<String, Map<String, dynamic>> value) {}
+
+  /// Pops the most recent entry off the stack (LIFO)
+  @override
+  Map<String, Map<String, dynamic>>? stackPop() {}
+
+  /// Peeks at the last item in the stack without removing it
+  @override
+  Map<String, Map<String, dynamic>>? stackPeek() {}
+
+  /// Dumps the full contents of the stack for debugging
+  @override
+  void stackDump() {}
+
   @override
   List<String> getAllTruthNames() {
     return [];
@@ -54,7 +70,7 @@ void main() {
     });
 
     test('should find unclosed but open tag.', () async {
-      const template = 'Hello, {@name Some template with no close}!';
+      const template = 'Hello, {@tight Some template with no close}!';
       final context = {'name': 'Ronald'};
       final hook = MightyEagleParserHook();
 
@@ -67,7 +83,7 @@ void main() {
 
       await parser.parse();
       final output = hook.aggregateErrors;
-      expect(output, contains('[ERROR] Found unclosed tag {@name Some template'));
+      expect(output, contains('[ERROR] Found unclosed tag {@tight Some temp'));
     });
 
     test('should substitute context variable with embedded dispatcher', () async {

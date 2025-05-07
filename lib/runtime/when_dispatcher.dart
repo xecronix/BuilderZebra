@@ -5,8 +5,8 @@ import 'package:builderzebra/abstracts/base_truth_binder.dart';
 import 'package:builderzebra/runtime/dispatcher_factory.dart';
 import 'package:builderzebra/engine/mighty_eagle.dart';
 
-class IfPreserveSpaceDispatcher extends Dispatcher {
-  IfPreserveSpaceDispatcher({
+class WhenDispatcher extends Dispatcher {
+  WhenDispatcher({
     required super.binder,
     required super.dispatcherFactory,
   });
@@ -46,13 +46,7 @@ class IfPreserveSpaceDispatcher extends Dispatcher {
         return '';
     }
 
-    final parts = template.split(RegExp(r'\{\@else\:\}'));
-
-    final selectedTemplate = (conditionMet ? parts.first : (parts.length > 1 ? parts[1] : ''));
-
-    if (selectedTemplate.isEmpty) {
-      return '';
-    }
+    if (!conditionMet) return '';
 
     final dispatcher = dispatcherFactory.dispatch('truth');
     if (dispatcher == null) {
@@ -60,7 +54,7 @@ class IfPreserveSpaceDispatcher extends Dispatcher {
     }
 
     final parser = MightyEagleParser(
-      template: selectedTemplate,
+      template: template,
       context: context,
       dispatcher: dispatcher,
     );

@@ -5,8 +5,8 @@ import 'package:builderzebra/abstracts/base_truth_binder.dart';
 import 'package:builderzebra/runtime/dispatcher_factory.dart';
 import 'package:builderzebra/engine/mighty_eagle.dart';
 
-class IfDispatcher extends Dispatcher {
-  IfDispatcher({
+class ElseDispatcher extends Dispatcher {
+  ElseDispatcher({
     required super.binder,
     required super.dispatcherFactory,
   });
@@ -18,8 +18,6 @@ class IfDispatcher extends Dispatcher {
     String? args,
     required Map<String, String> context,
   }) async {
-    final condition = args?.trim();
-    if (condition == null || condition.isEmpty) return '';
 
     final dispatcher = dispatcherFactory.dispatch('truth');
     if (dispatcher == null) {
@@ -35,8 +33,8 @@ class IfDispatcher extends Dispatcher {
     final parsedResult = await parser.parse();
 
     binder.stackPush({
-      'if': {
-        'condition': condition,
+      'else': {
+        'condition': '1==1', // always true
         'context': Map<String, String>.from(context),
         'parsed': parsedResult,
       }

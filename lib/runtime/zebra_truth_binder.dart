@@ -67,4 +67,46 @@ class ZebraTruthBinder implements BaseTruthBinder {
 
     return result;
   }
+
+  // -----------------------------------------------------
+  // Stack Support for Conditional Dispatchers
+  // -----------------------------------------------------
+
+  final List<Map<String, Map<String, dynamic>>> _logicStack = [];
+
+  /// Pushes a single conditional logic unit onto the stack
+  @override 
+  void stackPush(Map<String, Map<String, dynamic>> value) {
+    _logicStack.add(value);
+  }
+
+  /// Pops the most recent entry off the stack (LIFO)
+  @override
+  Map<String, Map<String, dynamic>>? stackPop() {
+    if (_logicStack.isEmpty) return null;
+    return _logicStack.removeLast();
+  }
+
+  /// Peeks at the last item in the stack without removing it
+  @override
+  Map<String, Map<String, dynamic>>? stackPeek() {
+    if (_logicStack.isEmpty) return null;
+    return _logicStack.last;
+  }
+
+  /// Dumps the full contents of the stack for debugging
+  @override
+  void stackDump() {
+    if (_logicStack.isEmpty) {
+      print('[BZ Stack] (empty)');
+    } else {
+      print('[BZ Stack] ${_logicStack.length} entries:');
+      for (var i = 0; i < _logicStack.length; i++) {
+        final entry = _logicStack[i];
+        final label = entry.keys.first;
+        final content = entry[label];
+        print('  [$i] <$label>: $content');
+      }
+    }
+  }
 }

@@ -238,11 +238,11 @@ class MightyEagleParser {
       } else if (char == '|') {
         break;
       } else if (char == ':' && peek == '}') {
-        await parserHook.message(
-          stream: stream,
-          message:
-              '[$sus] `$previewText` Found a closing tag while parsing dispatchArgs: ${stream.previewContext()}',
+        throw FormatException(
+          'Unexpected end of dispatcher args near `$previewText` — likely malformed '
+          'tag. Full context: ${stream.previewContext()}'
         );
+
       } else {
         output.write(char);
       }

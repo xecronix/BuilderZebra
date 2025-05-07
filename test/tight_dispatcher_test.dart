@@ -5,6 +5,22 @@ import 'package:builderzebra/abstracts/base_truth_binder.dart';
 
 // DummyBinder to satisfy DispatcherFactory
 class DummyBinder implements BaseTruthBinder {
+  /// Pushes a single conditional logic unit onto the stack
+  @override
+  void stackPush(Map<String, Map<String, dynamic>> value) {}
+
+  /// Pops the most recent entry off the stack (LIFO)
+  @override
+  Map<String, Map<String, dynamic>>? stackPop() {}
+
+  /// Peeks at the last item in the stack without removing it
+  @override
+  Map<String, Map<String, dynamic>>? stackPeek() {}
+
+  /// Dumps the full contents of the stack for debugging
+  @override
+  void stackDump() {}
+
   @override
   List<String> getAllTruthNames() => [];
 

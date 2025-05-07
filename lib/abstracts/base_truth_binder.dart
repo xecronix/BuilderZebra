@@ -14,4 +14,20 @@ abstract class BaseTruthBinder {
     required String truthName,
     required String childKey,   // e.g., "fields", "tags"
   });
+
+  // -----------------------------------------------------
+  // Stack Support for Conditional Dispatchers
+  // -----------------------------------------------------
+
+  /// Pushes a single conditional logic unit onto the stack
+  void stackPush(Map<String, Map<String, dynamic>> value) ;
+
+  /// Pops the most recent entry off the stack (LIFO)
+  Map<String, Map<String, dynamic>>? stackPop() ;
+
+  /// Peeks at the last item in the stack without removing it
+  Map<String, Map<String, dynamic>>? stackPeek() ;
+
+  /// Dumps the full contents of the stack for debugging
+  void stackDump() ;
 }
