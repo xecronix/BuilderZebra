@@ -1,0 +1,22 @@
+{
+ "scaffold": {
+    "dispatcher_test": {
+      "template":  "dispatcher_test.eagle",
+      "output":  "test/",
+      "outputFilePattern": "%{truth.name}_dispatcher_test.dart",
+      "overwrite": "never"
+    },
+    "dispatcher": {
+      "template":  "dispatcher.eagle",
+      "output":  "lib/runtime",
+      "outputFilePattern": "%{truth.name}_dispatcher.dart",
+      "overwrite": "never"
+    }, 
+    "dispatcher_docs": {
+      "template":  "dispatcher_docs.eagle",
+      "output":  "docs/dispatcher",
+      "outputFilePattern": "%{truth.name}_dispatcher.md",
+      "overwrite": "never"
+    }
+  }
+}

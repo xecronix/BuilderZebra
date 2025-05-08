@@ -1,0 +1,7 @@
+{
+  "context": {
+    "name": "context",
+    "className": "ContextDispatcher",
+    "purpose": "Intended for debugging, @context renders the current template context to the output."
+  }
+}

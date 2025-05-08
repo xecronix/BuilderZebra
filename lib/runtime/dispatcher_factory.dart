@@ -12,6 +12,7 @@ import 'package:builderzebra/runtime/if_dispatcher.dart';
 import 'package:builderzebra/runtime/endif_dispatcher.dart';
 import 'package:builderzebra/runtime/elseif_dispatcher.dart';
 import 'package:builderzebra/runtime/else_dispatcher.dart';
+import 'package:builderzebra/runtime/context_dispatcher.dart';
 
 class DispatcherFactory {
   const DispatcherFactory({required this.binder});
@@ -20,6 +21,8 @@ class DispatcherFactory {
 
   Dispatcher? dispatch(String actionRule) {
     switch (actionRule) {
+      case 'context':
+        return ContextDispatcher(binder: binder, dispatcherFactory: this);
       case 'when':
         return WhenDispatcher(binder: binder, dispatcherFactory: this);
       case 'if':
